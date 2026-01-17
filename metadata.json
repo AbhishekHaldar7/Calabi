@@ -1,0 +1,7 @@
+{
+  "name": "Calabi -  AI Calendar Assistant",
+  "description": "A sophisticated AI-powered calendar assistant with a warm honey-themed design. Features real-time chat, monthly calendar views, and intelligent scheduling using Gemini 3.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
