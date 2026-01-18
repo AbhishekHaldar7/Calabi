@@ -1,34 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Plus, Calendar as CalendarIcon, 
-  Settings, X, Zap, Moon, Sun, Clock as ClockIcon,
-  ChevronLeft, ChevronRight, User, ChevronDown
+  Settings, X, Moon, Sun, 
+  ChevronLeft, ChevronRight, User, 
+  UserRound, Clock, Bell, Shield, 
+  LogOut, Mic2, MessageSquareText
 } from 'lucide-react';
-import { PersonalityType, ClockFormat, IntensityType } from '../App';
+import { PersonalityType, ClockFormat, IntensityType, VoiceType, VerbosityType } from '../App';
 import { WeeklyView } from './WeeklyView';
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-}
-
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-          <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">{title}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"><X size={20} /></button>
-        </div>
-        <div className="p-6">{children}</div>
-      </div>
-    </div>
-  );
-};
+import { TaskEntryModal } from './TaskEntryModal';
 
 interface CalendarViewProps {
   personality: PersonalityType;
@@ -39,248 +20,215 @@ interface CalendarViewProps {
   setClockFormat: (v: ClockFormat) => void;
   intensity: IntensityType;
   setIntensity: (v: IntensityType) => void;
+  voice: VoiceType;
+  setVoice: (v: VoiceType) => void;
+  verbosity: VerbosityType;
+  setVerbosity: (v: VerbosityType) => void;
 }
 
 export const MonthlyView: React.FC<CalendarViewProps> = ({ 
-  personality, 
-  setPersonality,
-  isDarkMode,
-  setIsDarkMode,
-  clockFormat,
-  setClockFormat,
-  intensity,
-  setIntensity
+  personality, setPersonality, isDarkMode, setIsDarkMode, clockFormat, setClockFormat, intensity, setIntensity,
+  voice, setVoice, verbosity, setVerbosity
 }) => {
-  const [currentDate] = useState(new Date());
   const [viewDate, setViewDate] = useState(new Date());
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   
-  const isPro = personality === 'pro';
-  const primaryColor = isPro ? 'bg-slate-800' : 'bg-amber-400';
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
-  const viewYear = viewDate.getFullYear();
-  const viewMonthName = viewDate.toLocaleString('default', { month: 'long' });
+  const isPro = personality === 'pro';
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) setShowSettings(false);
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setShowProfile(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const changeMonth = (offset: number) => {
-    setViewDate(prev => {
-      const newDate = new Date(prev);
-      newDate.setMonth(newDate.getMonth() + offset);
-      return newDate;
-    });
+    setViewDate(prev => { const d = new Date(prev); d.setMonth(d.getMonth() + offset); return d; });
   };
-
-  const setMonth = (m: number) => {
-    setViewDate(prev => {
-      const newDate = new Date(prev);
-      newDate.setMonth(m);
-      return newDate;
-    });
-    setIsPickerOpen(false);
-  };
-
-  const resetToToday = () => setViewDate(new Date());
-
-  const daysInMonth = new Date(viewYear, viewDate.getMonth() + 1, 0).getDate();
-  const firstDayOfMonth = new Date(viewYear, viewDate.getMonth(), 1).getDay();
 
   return (
-    <div className={`flex flex-col h-full overflow-hidden transition-colors ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900'}`}>
-      <header className={`p-4 border-b flex items-center justify-between shrink-0 z-10 transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-        <div className="flex items-center gap-3">
-          <CalendarIcon className={isPro ? (isDarkMode ? 'text-slate-100' : 'text-slate-800') : 'text-amber-500'} size={20} />
-          <h2 className={`text-xl font-bold ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
-            {currentDate.toLocaleString('default', { month: 'long' })} {currentDate.getFullYear()}
-          </h2>
+    <div className={`flex flex-col h-full ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-white text-slate-900'}`}>
+      <header className={`px-6 py-4 border-b flex items-center justify-between shrink-0 z-40 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+        <div className="flex items-center gap-4">
+          <div className={`p-2 rounded-xl ${isPro ? 'bg-indigo-500/10' : 'bg-amber-50'}`}>
+            <CalendarIcon className={isPro ? 'text-indigo-400' : 'text-amber-500'} size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">
+              {viewDate.toLocaleString('default', { month: 'long' })} {viewDate.getFullYear()}
+            </h2>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
-           <div className={`flex items-center gap-2 border-l pl-3 ${isDarkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-             <button 
-               className={`${primaryColor} ${isPro ? 'text-white shadow-slate-900/20' : 'text-slate-900 shadow-amber-500/20'} px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 transition-all shadow-md active:scale-95`}
-             >
-               <Plus size={16}/> New Event
-             </button>
-             <button onClick={() => setIsSettingsModalOpen(true)} className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-100'}`}>
-               <Settings size={18} />
-             </button>
-             {/* Profile Relocated Here */}
-             <button className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all hover:scale-105 active:scale-95 ${
-               isPro 
-                 ? 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700' 
-                 : 'bg-amber-50 border-amber-100 dark:bg-amber-900/30 dark:border-amber-800'
-             }`}>
-               <User size={18} className={isPro ? "text-slate-600 dark:text-slate-300" : "text-amber-500"} />
-             </button>
-           </div>
+          <button 
+            onClick={() => setIsEntryModalOpen(true)} 
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center ${isPro ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-amber-400 text-white shadow-md shadow-amber-200/50'}`}
+          >
+            <Plus size={16} className="mr-2" /> New Entry
+          </button>
+          
+          <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
+
+          {/* Settings Toggle */}
+          <div className="relative" ref={settingsRef}>
+            <button 
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-2 rounded-xl transition-all ${showSettings ? (isPro ? 'bg-indigo-500 text-white' : 'bg-amber-400 text-white') : (isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-100')}`}
+            >
+              <Settings size={20} />
+            </button>
+
+            {showSettings && (
+              <div className={`absolute right-0 top-full mt-2 w-80 p-5 rounded-3xl border shadow-2xl z-[100] animate-in fade-in zoom-in-95 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">Calabi Tuning</h4>
+                  <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+                    {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+                  </button>
+                </div>
+                
+                <div className="space-y-5">
+                  {/* Personality */}
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-black uppercase opacity-40">Personality Matrix</span>
+                    <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl gap-1">
+                      {(['cheerful', 'pro'] as PersonalityType[]).map(p => (
+                        <button 
+                          key={p} 
+                          onClick={() => setPersonality(p)}
+                          className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${personality === p ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') : 'text-slate-400'}`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* AI Voice Selection */}
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-black uppercase opacity-40 flex items-center gap-1">
+                      <Mic2 size={10} /> Vocal Profile
+                    </span>
+                    <div className="grid grid-cols-2 p-1 bg-black/5 dark:bg-white/5 rounded-xl gap-1">
+                      {(['Zephyr', 'Kore', 'Puck', 'Fenrir'] as VoiceType[]).map(v => (
+                        <button 
+                          key={v} 
+                          onClick={() => setVoice(v)}
+                          className={`py-1.5 text-[10px] font-bold rounded-lg transition-all ${voice === v ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') : 'text-slate-400'}`}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Verbosity */}
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-black uppercase opacity-40 flex items-center gap-1">
+                      <MessageSquareText size={10} /> Response Depth
+                    </span>
+                    <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl gap-1">
+                      {(['blunt', 'detailed'] as VerbosityType[]).map(v => (
+                        <button 
+                          key={v} 
+                          onClick={() => setVerbosity(v)}
+                          className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${verbosity === v ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') : 'text-slate-400'}`}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Time Protocol */}
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-black uppercase opacity-40">Time Protocol</span>
+                    <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl gap-1">
+                      {(['12h', '24h'] as ClockFormat[]).map(f => (
+                        <button 
+                          key={f} 
+                          onClick={() => setClockFormat(f)}
+                          className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${clockFormat === f ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') : 'text-slate-400'}`}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Profile Toggle */}
+          <div className="relative" ref={profileRef}>
+            <button 
+              onClick={() => setShowProfile(!showProfile)}
+              className={`flex items-center gap-2 p-1 pr-3 rounded-xl transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'}`}
+            >
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white'}`}>
+                {isPro ? <UserRound size={16} /> : <User size={16} />}
+              </div>
+              <span className="text-xs font-bold">Queen Bee</span>
+            </button>
+
+            {showProfile && (
+              <div className={`absolute right-0 top-full mt-2 w-64 p-2 rounded-2xl border shadow-2xl z-[100] animate-in slide-in-from-top-2 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                <div className="p-3 border-b border-slate-700/50 mb-2">
+                  <p className="text-[10px] font-black uppercase tracking-tighter">Account Status</p>
+                  <p className="text-xs opacity-60">Queen Administrator</p>
+                </div>
+                <button className="w-full flex items-center gap-3 p-2 rounded-xl text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                  <Bell size={14} /> Alerts
+                </button>
+                <button className="w-full flex items-center gap-3 p-2 rounded-xl text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                  <Shield size={14} /> Security
+                </button>
+                <div className="h-px bg-slate-200 dark:bg-slate-700 my-1 mx-2" />
+                <button className="w-full flex items-center gap-3 p-2 rounded-xl text-xs text-red-500 hover:bg-red-500/10 transition-all">
+                  <LogOut size={14} /> Sign Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pb-12">
-        <section className={`border-b shrink-0 transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-          <div className={`px-6 py-3 border-b flex justify-between items-center ${isDarkMode ? 'border-slate-800 bg-slate-800/20' : 'border-slate-100 bg-slate-50/50'}`}>
-            <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Active Week Schedule</h3>
-            <span className={`text-[10px] font-bold ${isPro ? (isDarkMode ? 'text-slate-500' : 'text-slate-400') : 'text-amber-600 opacity-60'}`}>Week 42 • Today</span>
-          </div>
-          <div className="h-[420px] overflow-hidden">
-            <WeeklyView 
-              personality={personality} 
-              isEmbedded={true} 
-              clockFormat={clockFormat}
-              isDarkMode={isDarkMode}
-              intensity={intensity}
-            />
-          </div>
+      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        <section className={`rounded-3xl border overflow-hidden ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`}>
+           <div className={`p-4 border-b flex justify-between items-center ${isDarkMode ? 'bg-slate-800/40' : 'bg-slate-50/50'}`}>
+             <h3 className={`text-[10px] font-black uppercase tracking-widest ${isPro ? 'text-indigo-400' : 'text-amber-600'}`}>Weekly Horizon</h3>
+             <div className="flex gap-2">
+                <button onClick={() => changeMonth(-1)} className={`p-1.5 rounded-lg border transition-colors ${isDarkMode ? 'border-slate-700 hover:bg-slate-700' : 'border-slate-200 hover:bg-slate-100'}`}><ChevronLeft size={16}/></button>
+                <button onClick={() => changeMonth(1)} className={`p-1.5 rounded-lg border transition-colors ${isDarkMode ? 'border-slate-700 hover:bg-slate-700' : 'border-slate-200 hover:bg-slate-100'}`}><ChevronRight size={16}/></button>
+             </div>
+           </div>
+           <div className="h-[400px]">
+             <WeeklyView personality={personality} isDarkMode={isDarkMode} clockFormat={clockFormat} intensity={intensity} />
+           </div>
         </section>
 
-        <section className={`p-6 ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50/30'}`}>
-          <div className="max-w-6xl mx-auto">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex flex-col relative">
-                <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Monthly Planner</h3>
-                
-                {/* Clickable Month/Year Title */}
-                <button 
-                  onClick={() => setIsPickerOpen(!isPickerOpen)}
-                  className={`flex items-center gap-2 text-lg font-bold mt-1 px-2 -ml-2 py-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 group ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}
-                >
-                  {viewMonthName} <span className="opacity-40">{viewYear}</span>
-                  <ChevronDown size={16} className={`text-slate-400 transition-transform ${isPickerOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Quick Selection Popover */}
-                {isPickerOpen && (
-                  <div className="absolute top-full left-0 mt-2 z-50 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-3 grid grid-cols-3 gap-1 animate-in fade-in slide-in-from-top-2">
-                    {Array.from({ length: 12 }, (_, i) => {
-                      const mName = new Date(2000, i).toLocaleString('default', { month: 'short' });
-                      const isActive = i === viewDate.getMonth();
-                      return (
-                        <button 
-                          key={i} 
-                          onClick={() => setMonth(i)}
-                          className={`py-2 text-xs font-bold rounded-lg transition-colors ${
-                            isActive 
-                              ? (isPro ? 'bg-slate-900 text-white' : 'bg-amber-400 text-slate-900') 
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'
-                          }`}
-                        >
-                          {mName}
-                        </button>
-                      );
-                    })}
-                    <div className="col-span-3 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between gap-1">
-                      <button onClick={() => setViewDate(new Date(viewYear - 1, viewDate.getMonth()))} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                        {viewYear - 1}
-                      </button>
-                      <button onClick={() => setViewDate(new Date(viewYear + 1, viewDate.getMonth()))} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                        {viewYear + 1}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <button 
-                  onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-400 transition-colors"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                <button 
-                  onClick={resetToToday}
-                  className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                >
-                  Today
-                </button>
-                <button 
-                  onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-400 transition-colors"
-                >
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </div>
-
-            <div className={`p-6 rounded-3xl border shadow-sm transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-none' : 'bg-white border-slate-200 shadow-sm'}`}>
-              <div className={`grid grid-cols-7 gap-px border rounded-2xl overflow-hidden transition-colors ${isDarkMode ? 'bg-slate-800 border-slate-800' : 'bg-slate-200 border-slate-200 shadow-inner'}`}>
-                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                   <div key={d} className={`py-3 text-center text-[10px] font-black uppercase border-b transition-colors ${isDarkMode ? 'bg-slate-800/50 text-slate-500 border-slate-800' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-                     {d}
-                   </div>
-                 ))}
-                 {Array.from({ length: firstDayOfMonth }, (_, i) => (
-                   <div key={`empty-${i}`} className={`${isDarkMode ? 'bg-slate-900/50' : 'bg-slate-50/50'} min-h-[160px]`}></div>
-                 ))}
-                 {Array.from({ length: daysInMonth }, (_, i) => {
-                    const day = i + 1;
-                    const isToday = day === currentDate.getDate() && viewDate.getMonth() === currentDate.getMonth() && viewYear === currentDate.getFullYear();
-                    return (
-                      <div key={day} className={`min-h-[160px] p-3 group relative transition-colors cursor-pointer border-r border-b ${isDarkMode ? 'bg-slate-900 hover:bg-slate-800 border-slate-800' : 'bg-white hover:bg-slate-50 border-slate-100'} last:border-r-0`}>
-                        <div className="flex justify-between items-start mb-2">
-                          <span className={`text-xs font-bold ${isToday ? (isPro ? (isDarkMode ? 'bg-slate-700 text-white' : 'bg-slate-800 text-white') + ' w-6 h-6 flex items-center justify-center rounded-full' : 'text-amber-600') : (isDarkMode ? 'text-slate-600' : 'text-slate-400')}`}>
-                            {day}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                 })}
-              </div>
-            </div>
-          </div>
+        <section className="grid grid-cols-7 gap-2 pb-10">
+           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+             <div key={d} className="pb-2 text-center text-[10px] font-black uppercase tracking-widest opacity-40">{d}</div>
+           ))}
+           {Array.from({length: 31}).map((_, i) => (
+             <div key={i} className={`min-h-[100px] p-3 rounded-2xl border transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 hover:border-indigo-500/50' : 'bg-white border-slate-50 hover:border-amber-200 shadow-sm'}`}>
+                <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-600' : 'text-slate-300'}`}>{i + 1}</span>
+             </div>
+           ))}
         </section>
       </div>
 
-      <Modal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} title={isPro ? "System Configuration" : "Hive Settings"}>
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Personality</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => setPersonality('cheerful')} className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${personality === 'cheerful' ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20' : 'border-slate-100 dark:border-slate-800'}`}>
-                <span className="text-lg">🐝</span>
-                <div className="text-left"><p className="text-xs font-bold text-slate-800 dark:text-slate-100">Cheerful</p><p className="text-[9px] text-slate-500 italic">Sweet & punny</p></div>
-              </button>
-              <button onClick={() => setPersonality('pro')} className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${personality === 'pro' ? 'border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100' : 'border-slate-100 dark:border-slate-800'}`}>
-                <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center text-[10px]">💼</div>
-                <div className="text-left"><p className="text-xs font-bold dark:text-slate-100">Worker Bee</p><p className="text-[9px] text-slate-500 italic">Direct & Pro</p></div>
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Appearance & Time</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => setIsDarkMode(!isDarkMode)} className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${isDarkMode ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-800 shadow-sm'}`}>
-                <span className="text-xs font-bold">{isDarkMode ? 'Dark' : 'Light'}</span>
-                {isDarkMode ? <Moon size={16} /> : <Sun size={16} />}
-              </button>
-              <button onClick={() => setClockFormat(clockFormat === '12h' ? '24h' : '12h')} className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm`}>
-                <span className="text-xs font-bold">{clockFormat.toUpperCase()}</span>
-                <ClockIcon size={16} />
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Hive Optimisation</label>
-            <button 
-              onClick={() => setIntensity(intensity === 'high' ? 'low' : 'high')}
-              className={`w-full flex items-center justify-between p-4 rounded-xl transition-all border-2 ${intensity === 'high' ? (isPro ? 'border-slate-800 bg-slate-800 text-white' : 'border-amber-400 bg-amber-400 text-slate-900') : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100'}`}
-            >
-              <div className="flex items-center gap-3">
-                <Zap size={18} className={intensity === 'high' ? 'animate-pulse' : ''} />
-                <div className="text-left">
-                  <p className="text-sm font-bold">{isPro ? 'System Efficiency' : 'Buzz Intensity'}</p>
-                  <p className={`text-[10px] ${intensity === 'high' ? 'opacity-80' : 'text-slate-400'}`}>{intensity === 'high' ? 'Animations Active' : 'Low Power Mode'}</p>
-                </div>
-              </div>
-              <div className={`w-10 h-6 rounded-full relative transition-colors ${intensity === 'high' ? 'bg-white/30' : 'bg-slate-200'}`}>
-                 <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-sm ${intensity === 'high' ? 'right-1' : 'left-1'}`} />
-              </div>
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <TaskEntryModal isOpen={isEntryModalOpen} onClose={() => setIsEntryModalOpen(false)} onSave={(t) => console.log(t)} personality={personality} />
     </div>
   );
 };

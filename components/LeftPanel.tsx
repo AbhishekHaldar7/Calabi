@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, Inbox, Menu, ChevronLeft, LayoutGrid, Briefcase } from 'lucide-react';
+import { Calendar, Inbox, Menu, ChevronLeft, LayoutGrid, Briefcase, UserRound } from 'lucide-react';
 import { PersonalityType } from '../App';
 
 interface LeftPanelProps {
@@ -32,7 +32,13 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ isCollapsed, onToggle, act
         
         {!isCollapsed && (
           <div className="flex items-center gap-2">
-            <span className="text-2xl drop-shadow-sm">{isPro ? '📊' : '🐝'}</span>
+            {isPro ? (
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <UserRound size={18} className="text-white" />
+              </div>
+            ) : (
+              <span className="text-2xl drop-shadow-sm">🐝</span>
+            )}
             <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Calabi</h1>
           </div>
         )}
@@ -46,7 +52,9 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ isCollapsed, onToggle, act
             title={isCollapsed ? item.label : undefined}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
               activeTab === item.id 
-                ? (isPro ? 'bg-slate-900 text-white shadow-md' : 'bg-amber-100 text-amber-900 border border-amber-200/50')
+                ? (isPro 
+                    ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                    : 'bg-amber-100 text-amber-900 border border-amber-200/50')
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
             } ${isCollapsed ? 'justify-center px-0' : ''}`}
           >

@@ -11,6 +11,8 @@ import { TimerHeader } from './components/TimerHeader';
 export type PersonalityType = 'cheerful' | 'pro';
 export type ClockFormat = '12h' | '24h';
 export type IntensityType = 'low' | 'high';
+export type VoiceType = 'Zephyr' | 'Kore' | 'Puck' | 'Fenrir';
+export type VerbosityType = 'blunt' | 'detailed';
 
 interface ActiveTask {
   title: string;
@@ -25,6 +27,8 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [clockFormat, setClockFormat] = useState<ClockFormat>('12h');
   const [intensity, setIntensity] = useState<IntensityType>('high');
+  const [voice, setVoice] = useState<VoiceType>('Zephyr');
+  const [verbosity, setVerbosity] = useState<VerbosityType>('detailed');
   const [activeTask, setActiveTask] = useState<ActiveTask | null>(null);
 
   useEffect(() => {
@@ -41,6 +45,10 @@ const App: React.FC = () => {
     setActiveTask({ title, duration });
   };
 
+  const handleTimerComplete = () => {
+    setActiveTask(null);
+  };
+
   const renderCenterContent = () => {
     const props = { 
       personality, 
@@ -50,7 +58,11 @@ const App: React.FC = () => {
       clockFormat, 
       setClockFormat,
       intensity,
-      setIntensity
+      setIntensity,
+      voice,
+      setVoice,
+      verbosity,
+      setVerbosity
     };
     switch (activeTab) {
       case 'calendar':
@@ -72,7 +84,7 @@ const App: React.FC = () => {
         <TimerHeader 
           taskTitle={activeTask.title} 
           duration={activeTask.duration} 
-          onComplete={() => setActiveTask(null)}
+          onComplete={handleTimerComplete}
           onCancel={() => setActiveTask(null)}
           isDarkMode={isDarkMode}
           isPro={personality === 'pro'}
@@ -98,6 +110,9 @@ const App: React.FC = () => {
             onToggle={() => setRightCollapsed(!rightCollapsed)} 
             personality={personality}
             intensity={intensity}
+            voice={voice}
+            verbosity={verbosity}
+            isDarkMode={isDarkMode}
           />
         }
       />

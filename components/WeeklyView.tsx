@@ -21,6 +21,11 @@ export const WeeklyView: React.FC<WeeklyViewProps> = ({
   const isPro = personality === 'pro';
   const hours = Array.from({ length: 11 }, (_, i) => i + 8); 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  const today = new Date();
+  const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1; // 0-indexed Mon-Sun
+  const currentHour = today.getHours();
+  const currentMinutes = today.getMinutes();
 
   const formatHour = (h: number) => {
     if (clockFormat === '24h') return h.toString();
@@ -40,9 +45,9 @@ export const WeeklyView: React.FC<WeeklyViewProps> = ({
     <div className={`flex flex-col h-full overflow-hidden transition-colors ${isDarkMode ? 'bg-slate-900 text-slate-100' : 'bg-white text-slate-900'}`}>
       <div className={`flex border-b ml-12 shrink-0 ${isDarkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-white'}`}>
         {days.map((day, i) => (
-          <div key={day} className={`flex-1 py-2 text-center border-l first:border-l-0 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+          <div key={day} className={`flex-1 py-2 text-center border-l first:border-l-0 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'} ${i === currentDayIndex ? (isDarkMode ? 'bg-indigo-500/5' : 'bg-amber-50/30') : ''}`}>
             <p className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">{day}</p>
-            <p className={`text-sm font-bold ${isPro ? (isDarkMode ? 'text-slate-100' : 'text-slate-900') : (isDarkMode ? 'text-amber-600' : 'text-amber-600')}`}>
+            <p className={`text-sm font-bold ${isPro ? (isDarkMode ? 'text-slate-100' : 'text-slate-900') : (isDarkMode ? 'text-amber-600' : 'text-amber-600')} ${i === currentDayIndex ? 'ring-2 ring-indigo-500/20 rounded-full inline-block px-1' : ''}`}>
               {14 + i}
             </p>
           </div>
@@ -64,9 +69,19 @@ export const WeeklyView: React.FC<WeeklyViewProps> = ({
           ))}
           <div className="absolute inset-0 flex">
             {days.map((_, i) => (
-              <div key={i} className={`flex-1 border-r last:border-r-0 ${isDarkMode ? 'border-slate-800/50' : 'border-slate-100'}`} />
+              <div key={i} className={`flex-1 border-r last:border-r-0 ${isDarkMode ? 'border-slate-800/50' : 'border-slate-100'} ${i === currentDayIndex ? (isDarkMode ? 'bg-indigo-500/5' : 'bg-amber-50/10') : ''}`} />
             ))}
           </div>
+
+          {/* Current Time Indicator Line */}
+          {currentHour >= hours[0] && currentHour <= hours[hours.length-1] && (
+            <div 
+              className="absolute left-0 right-0 border-t-2 border-red-500/50 z-30 pointer-events-none flex items-center"
+              style={{ top: `${((currentHour - hours[0]) * rowHeight) + (currentMinutes / 60) * rowHeight}px` }}
+            >
+              <div className="w-2 h-2 rounded-full bg-red-500 -ml-1 shadow-sm" />
+            </div>
+          )}
 
           {mockEvents.map((event, idx) => {
             if (event.start < hours[0] || event.start > hours[hours.length-1]) return null;
