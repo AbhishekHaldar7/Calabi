@@ -68,9 +68,9 @@ const App: React.FC = () => {
       case 'calendar':
         return <MonthlyView {...props} />;
       case 'tasks':
-        return <TasksView personality={personality} intensity={intensity} onStartTimer={handleStartTimer} />;
+        return <TasksView personality={personality} intensity={intensity} isDarkMode={isDarkMode} onStartTimer={handleStartTimer} />;
       case 'hive':
-        return <HiveView personality={personality} intensity={intensity} />;
+        return <HiveView personality={personality} intensity={intensity} isDarkMode={isDarkMode} />;
       default:
         return <MonthlyView {...props} />;
     }
@@ -101,6 +101,7 @@ const App: React.FC = () => {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             personality={personality}
+            isDarkMode={isDarkMode}
           />
         }
         center={renderCenterContent()}

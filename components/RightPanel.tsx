@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, ChevronRight, Mic, Sparkles, UserRound, Volume2, Square } from 'lucide-react';
+import { Send, Bot, User, Loader2, ChevronRight, Mic, UserRound, Volume2, Square } from 'lucide-react';
 import { Message } from '../types';
 import { geminiService } from '../services/geminiService';
 import { PersonalityType, IntensityType, VoiceType, VerbosityType } from '../App';
@@ -161,7 +161,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         <button onClick={onToggle} className="p-2 text-slate-500 mb-6 hover:text-indigo-500 transition-colors">
           <ChevronRight size={20} className="rotate-180" />
         </button>
-        <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-100 text-amber-600 shadow-sm'} rounded-xl flex items-center justify-center shadow-lg active:scale-90`}>
+        <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20 shadow-lg' : 'bg-amber-100 text-amber-600 shadow-amber-200/50 shadow-md'} rounded-xl flex items-center justify-center active:scale-90 transition-all`}>
           {isPro ? <UserRound size={20} /> : <Bot size={20} />}
         </button>
       </div>
@@ -170,17 +170,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
   return (
     <div className={`flex flex-col h-full relative transition-colors duration-300 ${isDarkMode ? 'bg-slate-950' : 'bg-white'}`}>
-      <header className={`p-4 border-b flex items-center justify-between shrink-0 transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-slate-100 bg-white/80'}`}>
+      <header className={`px-4 py-5 border-b flex items-center justify-between shrink-0 transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-slate-100 bg-white/80'}`}>
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-100 text-amber-600'} rounded-xl flex items-center justify-center`}>
+          <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-100 text-amber-600'} rounded-xl flex items-center justify-center shadow-sm`}>
             {isPro ? <UserRound className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
           </div>
-          <div>
-            <h3 className={`text-sm font-bold ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>Calabi</h3>
-            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">{isPro ? 'Secure Line' : 'Buzzing...'}</p>
-          </div>
+          <h3 className={`text-sm font-bold leading-none ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+            Calabi
+          </h3>
         </div>
-        <button onClick={onToggle} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+        <button onClick={onToggle} className={`p-1.5 rounded-lg text-slate-400 transition-all ${isDarkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>
           <ChevronRight size={18} />
         </button>
       </header>
@@ -191,18 +190,18 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-colors ${
               msg.sender === 'bot' 
                 ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                : (isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500')
             }`}>
               {msg.sender === 'bot' ? (isPro ? <UserRound size={16}/> : <Bot size={16}/>) : <User size={16}/>}
             </div>
             <div className={`max-w-[85%] rounded-2xl p-3 text-sm relative group transition-colors shadow-sm ${
               msg.sender === 'bot' 
                 ? (isDarkMode 
-                    ? 'bg-slate-800 text-slate-100 border border-slate-700' 
+                    ? 'bg-slate-800 text-slate-200 border border-slate-700/50' 
                     : 'bg-slate-50 text-slate-800 border border-slate-200')
                 : (isPro 
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/10' 
-                    : 'bg-amber-500 text-white shadow-md')
+                    ? 'bg-indigo-600 text-white shadow-indigo-500/20' 
+                    : 'bg-amber-500 text-white shadow-amber-200/50')
             }`}>
               {msg.sender === 'bot' && (
                 <button 
@@ -223,9 +222,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             </div>
             <div className={`rounded-2xl p-3 border transition-colors ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
               <div className="flex gap-1">
-                <div className="w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
-                <div className="w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
-                <div className="w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
+                <div className={`w-1.5 h-1.5 rounded-full animate-bounce ${isDarkMode ? 'bg-slate-600' : 'bg-slate-300'}`} style={{animationDelay: '0ms'}} />
+                <div className={`w-1.5 h-1.5 rounded-full animate-bounce ${isDarkMode ? 'bg-slate-600' : 'bg-slate-300'}`} style={{animationDelay: '150ms'}} />
+                <div className={`w-1.5 h-1.5 rounded-full animate-bounce ${isDarkMode ? 'bg-slate-600' : 'bg-slate-300'}`} style={{animationDelay: '300ms'}} />
               </div>
             </div>
           </div>
@@ -233,16 +232,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       </div>
 
       <div className={`absolute bottom-0 left-0 right-0 p-4 backdrop-blur-md border-t z-10 space-y-3 transition-colors ${
-        isDarkMode ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200'
+        isDarkMode ? 'bg-slate-950/95 border-slate-800' : 'bg-white/95 border-slate-200 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]'
       }`}>
-        <div className={`flex items-center gap-2 rounded-xl p-1.5 border shadow-sm transition-all ${
+        <div className={`flex items-center gap-2 rounded-2xl p-1.5 border shadow-sm transition-all ${
           isDarkMode 
-            ? 'bg-slate-800 border-slate-700' 
-            : 'bg-slate-50 border-amber-100'
+            ? 'bg-slate-900 border-slate-800 focus-within:border-indigo-500/50' 
+            : 'bg-slate-50 border-amber-100 focus-within:border-amber-400/50'
         }`}>
           <button 
             onClick={isRecording ? stopRecording : startRecording}
-            className={`p-2 rounded-lg transition-all ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+            className={`p-2 rounded-xl transition-all ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
           >
             {isRecording ? <Square size={18} fill="currentColor" /> : <Mic size={18} />}
           </button>
@@ -252,7 +251,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage(input, false))}
             placeholder={isPro ? "Enter command..." : "Ask Calabi..."}
-            className={`flex-1 bg-transparent border-none focus:ring-0 text-sm py-1.5 px-2 resize-none outline-none placeholder-slate-400 ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}
+            className={`flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 resize-none outline-none placeholder-slate-400 ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}
           />
           <button 
             onClick={() => handleSendMessage(input, false)}

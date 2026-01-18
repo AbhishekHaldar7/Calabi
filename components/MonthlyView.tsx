@@ -54,10 +54,10 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <div className={`flex flex-col h-full ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-white text-slate-900'}`}>
-      <header className={`px-6 py-4 border-b flex items-center justify-between shrink-0 z-40 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+    <div className={`flex flex-col h-full transition-colors duration-300 ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-white text-slate-900'}`}>
+      <header className={`px-6 py-4 border-b flex items-center justify-between shrink-0 z-50 transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
         <div className="flex items-center gap-4">
-          <div className={`p-2 rounded-xl ${isPro ? 'bg-indigo-500/10' : 'bg-amber-50'}`}>
+          <div className={`p-2 rounded-xl transition-colors ${isPro ? 'bg-indigo-500/10' : 'bg-amber-50'}`}>
             <CalendarIcon className={isPro ? 'text-indigo-400' : 'text-amber-500'} size={24} />
           </div>
           <div>
@@ -70,7 +70,7 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsEntryModalOpen(true)} 
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center ${isPro ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-amber-400 text-white shadow-md shadow-amber-200/50'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center shadow-lg ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20' : 'bg-amber-400 text-white shadow-amber-200/50'}`}
           >
             <Plus size={16} className="mr-2" /> New Entry
           </button>
@@ -80,7 +80,7 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
           {/* Settings Toggle */}
           <div className="relative" ref={settingsRef}>
             <button 
-              onClick={() => setShowSettings(!showSettings)}
+              onClick={() => { setShowSettings(!showSettings); setShowProfile(false); }}
               className={`p-2 rounded-xl transition-all ${showSettings ? (isPro ? 'bg-indigo-500 text-white' : 'bg-amber-400 text-white') : (isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-100')}`}
             >
               <Settings size={20} />
@@ -90,13 +90,12 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
               <div className={`absolute right-0 top-full mt-2 w-80 p-5 rounded-3xl border shadow-2xl z-[100] animate-in fade-in zoom-in-95 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">Calabi Tuning</h4>
-                  <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+                  <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                     {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
                   </button>
                 </div>
                 
                 <div className="space-y-5">
-                  {/* Personality */}
                   <div className="space-y-2">
                     <span className="text-[9px] font-black uppercase opacity-40">Personality Matrix</span>
                     <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl gap-1">
@@ -112,7 +111,6 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
                     </div>
                   </div>
 
-                  {/* AI Voice Selection */}
                   <div className="space-y-2">
                     <span className="text-[9px] font-black uppercase opacity-40 flex items-center gap-1">
                       <Mic2 size={10} /> Vocal Profile
@@ -130,7 +128,6 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Verbosity */}
                   <div className="space-y-2">
                     <span className="text-[9px] font-black uppercase opacity-40 flex items-center gap-1">
                       <MessageSquareText size={10} /> Response Depth
@@ -148,7 +145,6 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Time Protocol */}
                   <div className="space-y-2">
                     <span className="text-[9px] font-black uppercase opacity-40">Time Protocol</span>
                     <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl gap-1">
@@ -171,25 +167,25 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
           {/* Profile Toggle */}
           <div className="relative" ref={profileRef}>
             <button 
-              onClick={() => setShowProfile(!showProfile)}
+              onClick={() => { setShowProfile(!showProfile); setShowSettings(false); }}
               className={`flex items-center gap-2 p-1 pr-3 rounded-xl transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'}`}
             >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white'}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20' : 'bg-amber-400 text-white shadow-amber-200/50'}`}>
                 {isPro ? <UserRound size={16} /> : <User size={16} />}
               </div>
-              <span className="text-xs font-bold">Queen Bee</span>
+              <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Queen Bee</span>
             </button>
 
             {showProfile && (
               <div className={`absolute right-0 top-full mt-2 w-64 p-2 rounded-2xl border shadow-2xl z-[100] animate-in slide-in-from-top-2 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                 <div className="p-3 border-b border-slate-700/50 mb-2">
-                  <p className="text-[10px] font-black uppercase tracking-tighter">Account Status</p>
-                  <p className="text-xs opacity-60">Queen Administrator</p>
+                  <p className="text-[10px] font-black uppercase tracking-tighter opacity-50">Account Status</p>
+                  <p className="text-xs font-bold">Queen Administrator</p>
                 </div>
-                <button className="w-full flex items-center gap-3 p-2 rounded-xl text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                <button className={`w-full flex items-center gap-3 p-2 rounded-xl text-xs transition-all ${isDarkMode ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                   <Bell size={14} /> Alerts
                 </button>
-                <button className="w-full flex items-center gap-3 p-2 rounded-xl text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                <button className={`w-full flex items-center gap-3 p-2 rounded-xl text-xs transition-all ${isDarkMode ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                   <Shield size={14} /> Security
                 </button>
                 <div className="h-px bg-slate-200 dark:bg-slate-700 my-1 mx-2" />
@@ -202,9 +198,9 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
-        <section className={`rounded-3xl border overflow-hidden ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`}>
-           <div className={`p-4 border-b flex justify-between items-center ${isDarkMode ? 'bg-slate-800/40' : 'bg-slate-50/50'}`}>
+      <div className="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth custom-scrollbar">
+        <section className={`rounded-3xl border overflow-hidden transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`}>
+           <div className={`p-4 border-b flex justify-between items-center transition-colors ${isDarkMode ? 'bg-slate-800/40' : 'bg-slate-50/50'}`}>
              <h3 className={`text-[10px] font-black uppercase tracking-widest ${isPro ? 'text-indigo-400' : 'text-amber-600'}`}>Weekly Horizon</h3>
              <div className="flex gap-2">
                 <button onClick={() => changeMonth(-1)} className={`p-1.5 rounded-lg border transition-colors ${isDarkMode ? 'border-slate-700 hover:bg-slate-700' : 'border-slate-200 hover:bg-slate-100'}`}><ChevronLeft size={16}/></button>
@@ -222,7 +218,7 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
            ))}
            {Array.from({length: 31}).map((_, i) => (
              <div key={i} className={`min-h-[100px] p-3 rounded-2xl border transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 hover:border-indigo-500/50' : 'bg-white border-slate-50 hover:border-amber-200 shadow-sm'}`}>
-                <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-600' : 'text-slate-300'}`}>{i + 1}</span>
+                <span className={`text-xs font-bold transition-colors ${isDarkMode ? 'text-slate-600' : 'text-slate-300'}`}>{i + 1}</span>
              </div>
            ))}
         </section>
