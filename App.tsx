@@ -6,10 +6,16 @@ import { MonthlyView } from './components/MonthlyView';
 import { RightPanel } from './components/RightPanel';
 import { TasksView } from './components/TasksView';
 import { HiveView } from './components/HiveView';
+import { TimerHeader } from './components/TimerHeader';
 
 export type PersonalityType = 'cheerful' | 'pro';
 export type ClockFormat = '12h' | '24h';
 export type IntensityType = 'low' | 'high';
+
+interface ActiveTask {
+  title: string;
+  duration: number;
+}
 
 const App: React.FC = () => {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -19,8 +25,8 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [clockFormat, setClockFormat] = useState<ClockFormat>('12h');
   const [intensity, setIntensity] = useState<IntensityType>('high');
+  const [activeTask, setActiveTask] = useState<ActiveTask | null>(null);
 
-  // Sync dark mode with body class for global tailwind styles
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add('dark');
@@ -30,6 +36,10 @@ const App: React.FC = () => {
       document.body.style.backgroundColor = '#ffffff';
     }
   }, [isDarkMode]);
+
+  const handleStartTimer = (title: string, duration: number) => {
+    setActiveTask({ title, duration });
+  };
 
   const renderCenterContent = () => {
     const props = { 
@@ -46,7 +56,7 @@ const App: React.FC = () => {
       case 'calendar':
         return <MonthlyView {...props} />;
       case 'tasks':
-        return <TasksView personality={personality} intensity={intensity} />;
+        return <TasksView personality={personality} intensity={intensity} onStartTimer={handleStartTimer} />;
       case 'hive':
         return <HiveView personality={personality} intensity={intensity} />;
       default:
@@ -58,6 +68,16 @@ const App: React.FC = () => {
 
   return (
     <div className={`${themeClass} h-full`}>
+      {activeTask && (
+        <TimerHeader 
+          taskTitle={activeTask.title} 
+          duration={activeTask.duration} 
+          onComplete={() => setActiveTask(null)}
+          onCancel={() => setActiveTask(null)}
+          isDarkMode={isDarkMode}
+          isPro={personality === 'pro'}
+        />
+      )}
       <Layout
         isDarkMode={isDarkMode}
         leftCollapsed={leftCollapsed}

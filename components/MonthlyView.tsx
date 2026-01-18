@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { 
   Plus, Calendar as CalendarIcon, 
-  Settings, X, Zap, Moon, Sun, Clock as ClockIcon
+  Settings, X, Zap, Moon, Sun, Clock as ClockIcon,
+  ChevronLeft, ChevronRight, User, ChevronDown
 } from 'lucide-react';
 import { PersonalityType, ClockFormat, IntensityType } from '../App';
 import { WeeklyView } from './WeeklyView';
@@ -51,13 +52,37 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
   setIntensity
 }) => {
   const [currentDate] = useState(new Date());
+  const [viewDate, setViewDate] = useState(new Date());
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   
   const isPro = personality === 'pro';
   const primaryColor = isPro ? 'bg-slate-800' : 'bg-amber-400';
 
-  const year = currentDate.getFullYear();
-  const monthName = currentDate.toLocaleString('default', { month: 'long' });
+  const viewYear = viewDate.getFullYear();
+  const viewMonthName = viewDate.toLocaleString('default', { month: 'long' });
+
+  const changeMonth = (offset: number) => {
+    setViewDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(newDate.getMonth() + offset);
+      return newDate;
+    });
+  };
+
+  const setMonth = (m: number) => {
+    setViewDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(m);
+      return newDate;
+    });
+    setIsPickerOpen(false);
+  };
+
+  const resetToToday = () => setViewDate(new Date());
+
+  const daysInMonth = new Date(viewYear, viewDate.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(viewYear, viewDate.getMonth(), 1).getDay();
 
   return (
     <div className={`flex flex-col h-full overflow-hidden transition-colors ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900'}`}>
@@ -65,7 +90,7 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
         <div className="flex items-center gap-3">
           <CalendarIcon className={isPro ? (isDarkMode ? 'text-slate-100' : 'text-slate-800') : 'text-amber-500'} size={20} />
           <h2 className={`text-xl font-bold ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
-            {monthName} {year}
+            {currentDate.toLocaleString('default', { month: 'long' })} {currentDate.getFullYear()}
           </h2>
         </div>
 
@@ -78,6 +103,14 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
              </button>
              <button onClick={() => setIsSettingsModalOpen(true)} className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-100'}`}>
                <Settings size={18} />
+             </button>
+             {/* Profile Relocated Here */}
+             <button className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all hover:scale-105 active:scale-95 ${
+               isPro 
+                 ? 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700' 
+                 : 'bg-amber-50 border-amber-100 dark:bg-amber-900/30 dark:border-amber-800'
+             }`}>
+               <User size={18} className={isPro ? "text-slate-600 dark:text-slate-300" : "text-amber-500"} />
              </button>
            </div>
         </div>
@@ -102,9 +135,73 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
 
         <section className={`p-6 ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50/30'}`}>
           <div className="max-w-6xl mx-auto">
-            <div className="mb-4">
-              <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Monthly Planner</h3>
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex flex-col relative">
+                <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Monthly Planner</h3>
+                
+                {/* Clickable Month/Year Title */}
+                <button 
+                  onClick={() => setIsPickerOpen(!isPickerOpen)}
+                  className={`flex items-center gap-2 text-lg font-bold mt-1 px-2 -ml-2 py-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 group ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}
+                >
+                  {viewMonthName} <span className="opacity-40">{viewYear}</span>
+                  <ChevronDown size={16} className={`text-slate-400 transition-transform ${isPickerOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Quick Selection Popover */}
+                {isPickerOpen && (
+                  <div className="absolute top-full left-0 mt-2 z-50 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-3 grid grid-cols-3 gap-1 animate-in fade-in slide-in-from-top-2">
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const mName = new Date(2000, i).toLocaleString('default', { month: 'short' });
+                      const isActive = i === viewDate.getMonth();
+                      return (
+                        <button 
+                          key={i} 
+                          onClick={() => setMonth(i)}
+                          className={`py-2 text-xs font-bold rounded-lg transition-colors ${
+                            isActive 
+                              ? (isPro ? 'bg-slate-900 text-white' : 'bg-amber-400 text-slate-900') 
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500'
+                          }`}
+                        >
+                          {mName}
+                        </button>
+                      );
+                    })}
+                    <div className="col-span-3 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between gap-1">
+                      <button onClick={() => setViewDate(new Date(viewYear - 1, viewDate.getMonth()))} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                        {viewYear - 1}
+                      </button>
+                      <button onClick={() => setViewDate(new Date(viewYear + 1, viewDate.getMonth()))} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                        {viewYear + 1}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <button 
+                  onClick={() => changeMonth(-1)}
+                  className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-400 transition-colors"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button 
+                  onClick={resetToToday}
+                  className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                >
+                  Today
+                </button>
+                <button 
+                  onClick={() => changeMonth(1)}
+                  className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-400 transition-colors"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
             </div>
+
             <div className={`p-6 rounded-3xl border shadow-sm transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-none' : 'bg-white border-slate-200 shadow-sm'}`}>
               <div className={`grid grid-cols-7 gap-px border rounded-2xl overflow-hidden transition-colors ${isDarkMode ? 'bg-slate-800 border-slate-800' : 'bg-slate-200 border-slate-200 shadow-inner'}`}>
                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
@@ -112,18 +209,22 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
                      {d}
                    </div>
                  ))}
-                 {Array.from({ length: 31 }, (_, i) => (
-                    <div key={i} className={`min-h-[160px] p-3 group relative transition-colors cursor-pointer border-r border-b ${isDarkMode ? 'bg-slate-900 hover:bg-slate-800 border-slate-800' : 'bg-white hover:bg-slate-50 border-slate-100'} last:border-r-0`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <span className={`text-xs font-bold ${i+1 === 14 ? (isPro ? (isDarkMode ? 'bg-slate-700 text-white' : 'bg-slate-800 text-white') + ' w-6 h-6 flex items-center justify-center rounded-full' : 'text-amber-600') : (isDarkMode ? 'text-slate-600' : 'text-slate-400')}`}>
-                          {i + 1}
-                        </span>
-                      </div>
-                    </div>
-                 ))}
-                 {Array.from({ length: 4 }, (_, i) => (
+                 {Array.from({ length: firstDayOfMonth }, (_, i) => (
                    <div key={`empty-${i}`} className={`${isDarkMode ? 'bg-slate-900/50' : 'bg-slate-50/50'} min-h-[160px]`}></div>
                  ))}
+                 {Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1;
+                    const isToday = day === currentDate.getDate() && viewDate.getMonth() === currentDate.getMonth() && viewYear === currentDate.getFullYear();
+                    return (
+                      <div key={day} className={`min-h-[160px] p-3 group relative transition-colors cursor-pointer border-r border-b ${isDarkMode ? 'bg-slate-900 hover:bg-slate-800 border-slate-800' : 'bg-white hover:bg-slate-50 border-slate-100'} last:border-r-0`}>
+                        <div className="flex justify-between items-start mb-2">
+                          <span className={`text-xs font-bold ${isToday ? (isPro ? (isDarkMode ? 'bg-slate-700 text-white' : 'bg-slate-800 text-white') + ' w-6 h-6 flex items-center justify-center rounded-full' : 'text-amber-600') : (isDarkMode ? 'text-slate-600' : 'text-slate-400')}`}>
+                            {day}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                 })}
               </div>
             </div>
           </div>

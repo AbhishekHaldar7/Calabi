@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, Inbox, Menu, ChevronLeft, LayoutGrid, Briefcase, User } from 'lucide-react';
+import { Calendar, Inbox, Menu, ChevronLeft, LayoutGrid, Briefcase } from 'lucide-react';
 import { PersonalityType } from '../App';
 
 interface LeftPanelProps {
@@ -57,24 +57,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ isCollapsed, onToggle, act
       </nav>
 
       <div className={`pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-4 ${isCollapsed ? 'px-0' : 'px-2'}`}>
-        <button className={`flex items-center gap-3 w-full p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all ${isCollapsed ? 'justify-center' : ''}`}>
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border transition-colors ${
-            isPro 
-              ? 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700' 
-              : 'bg-amber-50 border-amber-100 dark:bg-amber-900/30 dark:border-amber-800'
-          }`}>
-            <User size={18} className={isPro ? "text-slate-600 dark:text-slate-300" : "text-amber-600 dark:text-amber-400"} />
-          </div>
-          {!isCollapsed && (
-            <div className="text-left overflow-hidden">
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">Queen Bee</p>
-              <p className="text-[10px] text-slate-500 truncate">Settings</p>
-            </div>
-          )}
-        </button>
-        
         {!isCollapsed && (
-          <p className="text-[10px] text-center text-slate-300 dark:text-slate-600 font-medium uppercase tracking-widest pb-2">
+          <p className="text-[10px] text-center text-slate-300 dark:text-slate-600 font-medium uppercase tracking-widest pb-4">
             {isPro ? 'Enterprise v1.2' : 'Hive OS v1.2'}
           </p>
         )}
