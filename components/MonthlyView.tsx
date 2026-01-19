@@ -10,6 +10,7 @@ import {
 import { PersonalityType, ClockFormat, IntensityType, VoiceType, VerbosityType } from '../App';
 import { WeeklyView } from './WeeklyView';
 import { TaskEntryModal } from './TaskEntryModal';
+import { SuitSilhouette } from './LeftPanel';
 
 interface CalendarViewProps {
   personality: PersonalityType;
@@ -171,7 +172,7 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
               className={`flex items-center gap-2 p-1 pr-3 rounded-xl transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'}`}
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20' : 'bg-amber-400 text-white shadow-amber-200/50'}`}>
-                {isPro ? <UserRound size={16} /> : <User size={16} />}
+                {isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <UserRound size={16} />}
               </div>
               <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Queen Bee</span>
             </button>

@@ -1,7 +1,16 @@
 
 import React from 'react';
-import { Calendar, Inbox, Menu, ChevronLeft, LayoutGrid, Briefcase, UserRound } from 'lucide-react';
+import { Calendar, Inbox, Menu, ChevronLeft, LayoutGrid, Briefcase, UserRound, User } from 'lucide-react';
 import { PersonalityType } from '../App';
+
+// Formal Suit Silhouette SVG for Pro Mode
+export const SuitSilhouette = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 7.5L10 10l2 7 2-7-2-2.5z" /> 
+    <path d="M6 8c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1c0-4 2-7 5-8l-2-2H6zM18 8h-2l-2 2c3 1 5 4 5 8h1c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2z" /> 
+    <path d="M12 18l-3 4h6l-3-4zM10 8l2 2 2-2h-4z" />
+  </svg>
+);
 
 interface LeftPanelProps {
   isCollapsed: boolean;
@@ -35,13 +44,17 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ isCollapsed, onToggle, act
         
         {!isCollapsed && (
           <div className="flex items-center gap-2">
-            {isPro ? (
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-lg transition-all duration-300 ${
+              isPro 
+                ? 'bg-gradient-to-br from-indigo-600 to-violet-700 shadow-indigo-500/20' 
+                : 'bg-amber-400 shadow-amber-200/50'
+            }`}>
+              {isPro ? (
+                <SuitSilhouette className="w-6 h-6 text-white" />
+              ) : (
                 <UserRound size={18} className="text-white" />
-              </div>
-            ) : (
-              <span className="text-2xl drop-shadow-sm">🐝</span>
-            )}
+              )}
+            </div>
             <h1 className={`text-xl font-bold tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>Calabi</h1>
           </div>
         )}

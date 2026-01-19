@@ -4,6 +4,7 @@ import { Send, Bot, User, Loader2, ChevronRight, Mic, UserRound, Volume2, Square
 import { Message } from '../types';
 import { geminiService } from '../services/geminiService';
 import { PersonalityType, IntensityType, VoiceType, VerbosityType } from '../App';
+import { SuitSilhouette } from './LeftPanel';
 
 interface RightPanelProps {
   isCollapsed: boolean;
@@ -161,8 +162,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         <button onClick={onToggle} className="p-2 text-slate-500 mb-6 hover:text-indigo-500 transition-colors">
           <ChevronRight size={20} className="rotate-180" />
         </button>
-        <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20 shadow-lg' : 'bg-amber-100 text-amber-600 shadow-amber-200/50 shadow-md'} rounded-xl flex items-center justify-center active:scale-90 transition-all`}>
-          {isPro ? <UserRound size={20} /> : <Bot size={20} />}
+        <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20 shadow-lg' : 'bg-amber-400 text-white shadow-amber-200/50 shadow-md'} rounded-xl flex items-center justify-center active:scale-90 transition-all`}>
+          {isPro ? <SuitSilhouette className="w-6 h-6 text-white" /> : <UserRound size={20} />}
         </button>
       </div>
     );
@@ -172,8 +173,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     <div className={`flex flex-col h-full relative transition-colors duration-300 ${isDarkMode ? 'bg-slate-950' : 'bg-white'}`}>
       <header className={`px-4 py-5 border-b flex items-center justify-between shrink-0 transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-slate-100 bg-white/80'}`}>
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-100 text-amber-600'} rounded-xl flex items-center justify-center shadow-sm`}>
-            {isPro ? <UserRound className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
+          <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white'} rounded-xl flex items-center justify-center shadow-sm`}>
+            {isPro ? <SuitSilhouette className="h-7 w-7 text-white" /> : <UserRound className="h-5 w-5" />}
           </div>
           <h3 className={`text-sm font-bold leading-none ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
             Calabi
@@ -192,7 +193,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') 
                 : (isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500')
             }`}>
-              {msg.sender === 'bot' ? (isPro ? <UserRound size={16}/> : <Bot size={16}/>) : <User size={16}/>}
+              {msg.sender === 'bot' ? (isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <UserRound size={16}/>) : <User size={16}/>}
             </div>
             <div className={`max-w-[85%] rounded-2xl p-3 text-sm relative group transition-colors shadow-sm ${
               msg.sender === 'bot' 
