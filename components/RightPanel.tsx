@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, ChevronRight, Mic, UserRound, Volume2, Square } from 'lucide-react';
+import { Send, Bot, User, Loader2, ChevronRight, Mic, UserRound, Volume2, Square, AlertCircle } from 'lucide-react';
 import { Message } from '../types';
 import { geminiService } from '../services/geminiService';
 import { PersonalityType, IntensityType, VoiceType, VerbosityType } from '../App';
@@ -38,6 +38,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
+  const hasApiKey = !!process.env.API_KEY;
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -67,7 +69,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     let location;
     try {
       const pos = await new Promise<GeolocationPosition>((res, rej) => 
-        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
+        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 3000 })
       );
       location = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
     } catch (e) {}
@@ -84,13 +86,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     setMessages(prev => [...prev, botMessage]);
     setIsLoading(false);
     
-    if (shouldSpeak) {
+    if (shouldSpeak && !responseText.includes("Authentication Error")) {
       playTTS(botMessage.content);
     }
   };
 
   const playTTS = async (text: string) => {
-    const base64Audio = await geminiService.generateSpeech(text, personality, voice);
+    const cleanText = text.split("**Sources:**")[0]; // Don't read out the URLs
+    const base64Audio = await geminiService.generateSpeech(cleanText, personality, voice);
     if (!base64Audio) return;
 
     if (!audioContextRef.current) {
@@ -162,7 +165,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         <button onClick={onToggle} className="p-2 text-slate-500 mb-6 hover:text-indigo-500 transition-colors">
           <ChevronRight size={20} className="rotate-180" />
         </button>
-        {/* Hardcoded sidebar branding */}
         <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20 shadow-lg' : 'bg-white border border-slate-100 shadow-sm'} rounded-xl flex items-center justify-center active:scale-90 transition-all`}>
           {isPro ? <SuitSilhouette className="w-6 h-6 text-white" /> : <BeeLogo className="w-8 h-8" />}
         </button>
@@ -174,7 +176,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     <div className={`flex flex-col h-full relative transition-colors duration-300 ${isDarkMode ? 'bg-slate-950' : 'bg-white'}`}>
       <header className={`px-4 py-5 border-b flex items-center justify-between shrink-0 transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-slate-100 bg-white/80'}`}>
         <div className="flex items-center gap-3">
-          {/* Hardcoded header branding */}
           <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-100 shadow-sm'} rounded-xl flex items-center justify-center`}>
             {isPro ? <SuitSilhouette className="h-7 w-7 text-white" /> : <BeeLogo className="h-9 w-9" />}
           </div>
@@ -187,10 +188,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </button>
       </header>
 
+      {!hasApiKey && (
+        <div className="m-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+          <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+          <div>
+            <p className="text-xs font-bold text-red-500">API Key Required</p>
+            <p className="text-[10px] text-red-400/80 mt-1">Please configure your Gemini API Key in the project environment to enable AI capabilities.</p>
+          </div>
+        </div>
+      )}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 pb-48 scroll-smooth custom-scrollbar">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex items-start gap-2 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-            {/* Hardcoded logic: Bot uses branding logo, User uses profile icon */}
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-colors ${
               msg.sender === 'bot' 
                 ? (isPro ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-100') 
@@ -198,7 +208,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             }`}>
               {msg.sender === 'bot' ? (isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <BeeLogo className="w-7 h-7"/>) : <User size={16}/>}
             </div>
-            <div className={`max-w-[85%] rounded-2xl p-3 text-sm relative group transition-colors shadow-sm ${
+            <div className={`max-w-[85%] rounded-2xl p-3 text-sm relative group transition-colors shadow-sm whitespace-pre-wrap ${
               msg.sender === 'bot' 
                 ? (isDarkMode 
                     ? 'bg-slate-800 text-slate-200 border border-slate-700/50' 
@@ -207,7 +217,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                     ? 'bg-indigo-600 text-white shadow-indigo-500/20' 
                     : 'bg-amber-500 text-white shadow-amber-200/50')
             }`}>
-              {msg.sender === 'bot' && (
+              {msg.sender === 'bot' && !msg.content.includes("Authentication Error") && (
                 <button 
                   onClick={() => playTTS(msg.content)}
                   className={`absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-amber-500`}
@@ -222,7 +232,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         {isLoading && (
           <div className="flex items-start gap-2 animate-pulse">
             <div className={`w-8 h-8 ${isDarkMode ? 'bg-slate-800' : 'bg-white border border-slate-100'} rounded-lg flex items-center justify-center`}>
-              {/* Bot loading state uses logo */}
               {isPro ? <SuitSilhouette className="w-5 h-5 text-indigo-400 animate-pulse" /> : <BeeLogo className="w-6 h-6 animate-bounce opacity-50" />}
             </div>
             <div className={`rounded-2xl p-3 border transition-colors ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
@@ -260,7 +269,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           />
           <button 
             onClick={() => handleSendMessage(input, false)}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || !hasApiKey}
             className={`p-2.5 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 ${
               isPro ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-amber-400 text-slate-900 hover:bg-amber-500'
             }`}

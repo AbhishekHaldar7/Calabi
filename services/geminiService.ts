@@ -13,7 +13,10 @@ Focus exclusively on speed, logic, and professional scheduling. No puns.
 Use Google Search for all data-driven inquiries and location info.`;
 
 export class GeminiService {
-  private get ai() {
+  private getClient() {
+    if (!process.env.API_KEY) {
+      throw new Error("API_KEY is not configured in the environment.");
+    }
     return new GoogleGenAI({ apiKey: process.env.API_KEY });
   }
 
@@ -25,12 +28,13 @@ export class GeminiService {
     location?: { latitude: number, longitude: number }
   ) {
     try {
-      const model = personality === 'pro' ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
+      const ai = this.getClient();
+      const modelName = personality === 'pro' ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
       const instruction = personality === 'pro' ? PRO_INSTRUCTION : CHEERFUL_INSTRUCTION;
       const verbosityRule = verbosity === 'blunt' ? 'Keep responses under 20 words.' : 'Provide detailed explanations and context.';
       
-      const response = await this.ai.models.generateContent({
-        model: model,
+      const response = await ai.models.generateContent({
+        model: modelName,
         contents: [...history, { role: 'user', parts: [{ text: prompt }] }],
         config: {
           systemInstruction: `${instruction}\n${verbosityRule}`,
@@ -41,6 +45,7 @@ export class GeminiService {
 
       let text = response.text || "I couldn't process that request.";
       
+      // Extract Grounding Metadata for URLs
       const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       if (chunks && chunks.length > 0) {
         const links = chunks
@@ -48,20 +53,25 @@ export class GeminiService {
           .filter(Boolean);
         
         if (links.length > 0) {
-          text += "\n\n**Sources:**\n" + Array.from(new Set(links)).join("\n");
+          const uniqueLinks = Array.from(new Set(links));
+          text += "\n\n**Sources:**\n" + uniqueLinks.join("\n");
         }
       }
 
       return text;
     } catch (error: any) {
       console.error("Gemini API Error:", error);
-      return "The system encountered a logic gap. Please try again.";
+      if (error.message?.includes("API_KEY")) {
+        return "Authentication Error: Please ensure your Gemini API Key is set in the environment variables.";
+      }
+      return "The system encountered a logic gap. Please try again later.";
     }
   }
 
   async generateSpeech(text: string, personality: PersonalityType, voiceName: VoiceType = 'Zephyr') {
     try {
-      const response = await this.ai.models.generateContent({
+      const ai = this.getClient();
+      const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-preview-tts",
         contents: [{ parts: [{ text: `${personality === 'pro' ? 'Directly' : 'Cheerfully'}: ${text}` }] }],
         config: {
@@ -83,7 +93,8 @@ export class GeminiService {
 
   async transcribeAudio(base64Audio: string) {
     try {
-      const response = await this.ai.models.generateContent({
+      const ai = this.getClient();
+      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [
           {
