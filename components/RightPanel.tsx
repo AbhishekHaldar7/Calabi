@@ -4,7 +4,7 @@ import { Send, Bot, User, Loader2, ChevronRight, Mic, UserRound, Volume2, Square
 import { Message } from '../types';
 import { geminiService } from '../services/geminiService';
 import { PersonalityType, IntensityType, VoiceType, VerbosityType } from '../App';
-import { SuitSilhouette } from './LeftPanel';
+import { SuitSilhouette, BeeLogo } from './LeftPanel';
 
 interface RightPanelProps {
   isCollapsed: boolean;
@@ -162,8 +162,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         <button onClick={onToggle} className="p-2 text-slate-500 mb-6 hover:text-indigo-500 transition-colors">
           <ChevronRight size={20} className="rotate-180" />
         </button>
-        <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20 shadow-lg' : 'bg-amber-400 text-white shadow-amber-200/50 shadow-md'} rounded-xl flex items-center justify-center active:scale-90 transition-all`}>
-          {isPro ? <SuitSilhouette className="w-6 h-6 text-white" /> : <UserRound size={20} />}
+        {/* Hardcoded sidebar branding */}
+        <button className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20 shadow-lg' : 'bg-white border border-slate-100 shadow-sm'} rounded-xl flex items-center justify-center active:scale-90 transition-all`}>
+          {isPro ? <SuitSilhouette className="w-6 h-6 text-white" /> : <BeeLogo className="w-8 h-8" />}
         </button>
       </div>
     );
@@ -173,8 +174,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     <div className={`flex flex-col h-full relative transition-colors duration-300 ${isDarkMode ? 'bg-slate-950' : 'bg-white'}`}>
       <header className={`px-4 py-5 border-b flex items-center justify-between shrink-0 transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-slate-100 bg-white/80'}`}>
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white'} rounded-xl flex items-center justify-center shadow-sm`}>
-            {isPro ? <SuitSilhouette className="h-7 w-7 text-white" /> : <UserRound className="h-5 w-5" />}
+          {/* Hardcoded header branding */}
+          <div className={`w-10 h-10 ${isPro ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-100 shadow-sm'} rounded-xl flex items-center justify-center`}>
+            {isPro ? <SuitSilhouette className="h-7 w-7 text-white" /> : <BeeLogo className="h-9 w-9" />}
           </div>
           <h3 className={`text-sm font-bold leading-none ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
             Calabi
@@ -188,12 +190,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 pb-48 scroll-smooth custom-scrollbar">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex items-start gap-2 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
+            {/* Hardcoded logic: Bot uses branding logo, User uses profile icon */}
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-colors ${
               msg.sender === 'bot' 
-                ? (isPro ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-white') 
+                ? (isPro ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-100') 
                 : (isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500')
             }`}>
-              {msg.sender === 'bot' ? (isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <UserRound size={16}/>) : <User size={16}/>}
+              {msg.sender === 'bot' ? (isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <BeeLogo className="w-7 h-7"/>) : <User size={16}/>}
             </div>
             <div className={`max-w-[85%] rounded-2xl p-3 text-sm relative group transition-colors shadow-sm ${
               msg.sender === 'bot' 
@@ -218,8 +221,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         ))}
         {isLoading && (
           <div className="flex items-start gap-2 animate-pulse">
-            <div className={`w-8 h-8 ${isDarkMode ? 'bg-slate-800' : 'bg-amber-100'} rounded-lg flex items-center justify-center`}>
-              <Loader2 size={16} className={`animate-spin ${isPro ? 'text-indigo-400' : 'text-amber-400'}`}/>
+            <div className={`w-8 h-8 ${isDarkMode ? 'bg-slate-800' : 'bg-white border border-slate-100'} rounded-lg flex items-center justify-center`}>
+              {/* Bot loading state uses logo */}
+              {isPro ? <SuitSilhouette className="w-5 h-5 text-indigo-400 animate-pulse" /> : <BeeLogo className="w-6 h-6 animate-bounce opacity-50" />}
             </div>
             <div className={`rounded-2xl p-3 border transition-colors ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
               <div className="flex gap-1">

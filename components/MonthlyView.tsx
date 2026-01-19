@@ -10,7 +10,7 @@ import {
 import { PersonalityType, ClockFormat, IntensityType, VoiceType, VerbosityType } from '../App';
 import { WeeklyView } from './WeeklyView';
 import { TaskEntryModal } from './TaskEntryModal';
-import { SuitSilhouette } from './LeftPanel';
+import { SuitSilhouette, BeeLogo } from './LeftPanel';
 
 interface CalendarViewProps {
   personality: PersonalityType;
@@ -165,23 +165,30 @@ export const MonthlyView: React.FC<CalendarViewProps> = ({
             )}
           </div>
 
-          {/* Profile Toggle */}
+          {/* Profile Toggle - Hardcoded Branding Logo */}
           <div className="relative" ref={profileRef}>
             <button 
               onClick={() => { setShowProfile(!showProfile); setShowSettings(false); }}
               className={`flex items-center gap-2 p-1 pr-3 rounded-xl transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'}`}
             >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20' : 'bg-amber-400 text-white shadow-amber-200/50'}`}>
-                {isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <UserRound size={16} />}
+              {/* This is the Branding Logo based on mode */}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isPro ? 'bg-indigo-600 text-white shadow-indigo-500/20' : 'bg-white border border-slate-100 shadow-sm'}`}>
+                {isPro ? <SuitSilhouette className="w-5 h-5 text-white" /> : <BeeLogo className="w-7 h-7" />}
               </div>
               <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Queen Bee</span>
             </button>
 
             {showProfile && (
               <div className={`absolute right-0 top-full mt-2 w-64 p-2 rounded-2xl border shadow-2xl z-[100] animate-in slide-in-from-top-2 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
-                <div className="p-3 border-b border-slate-700/50 mb-2">
-                  <p className="text-[10px] font-black uppercase tracking-tighter opacity-50">Account Status</p>
-                  <p className="text-xs font-bold">Queen Administrator</p>
+                <div className="p-3 border-b border-slate-700/50 mb-2 flex items-center gap-3">
+                  {/* The User profile photo would go here, hardcoded as icon for now */}
+                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                    <User size={16} className="text-slate-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-tighter opacity-50">Account Status</p>
+                    <p className="text-xs font-bold">Queen Administrator</p>
+                  </div>
                 </div>
                 <button className={`w-full flex items-center gap-3 p-2 rounded-xl text-xs transition-all ${isDarkMode ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                   <Bell size={14} /> Alerts
